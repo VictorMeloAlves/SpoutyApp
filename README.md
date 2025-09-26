@@ -1,97 +1,80 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Projeto Spouty - Aplicativo Móvel (Módulo de Autenticação e Banco de Dados)
 
-# Getting Started
+Este repositório contém o código-fonte do aplicativo móvel multiplataforma (Android/iOS) para o projeto de vaso interativo "Spouty". Esta entrega foca no módulo de autenticação de usuários e na integração com o banco de dados em tempo real.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 📜 Descrição do Módulo
 
-## Step 1: Start Metro
+O aplicativo serve como a interface principal do usuário com o sistema Spouty. Este módulo em particular demonstra as funcionalidades de:
+- **Cadastro de Novos Usuários:** Permite que novos usuários criem uma conta segura.
+- **Login de Usuários Existentes:** Autentica usuários cadastrados.
+- **Gerenciamento de Sessão:** Mantém o usuário logado e redireciona para a tela principal ou de login conforme o status da autenticação.
+- **Conexão com Banco de Dados em Tempo Real:** Exibe dados (atualmente simulados) vindos do Firebase Firestore, demonstrando a capacidade de o app reagir a atualizações na nuvem.
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## 🚀 Tecnologias Utilizadas
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+- **Linguagem de Programação:** TypeScript
+- **Framework de Desenvolvimento:** React Native
+- **Gerenciamento de Telas:** React Navigation (`@react-navigation/native-stack`)
+- **Serviços de Nuvem (Backend as a Service - BaaS):** Google Firebase
+  - **Firebase Authentication:** Para cadastro, login e gerenciamento de usuários.
+  - **Firebase Firestore:** Banco de dados NoSQL em tempo real para persistência e recuperação de dados.
 
-```sh
-# Using npm
-npm start
+## ⚙️ Configuração do Ambiente de Desenvolvimento
 
-# OR using Yarn
-yarn start
-```
+Para executar este projeto localmente, é necessário configurar o ambiente de desenvolvimento React Native:
 
-## Step 2: Build and run your app
+1.  **Instale Node.js:** Versão LTS recomendada. [Download aqui](https://nodejs.org/en).
+2.  **Instale o Java Development Kit (JDK):** **Versão 17** é obrigatória. [Download do Adoptium Temurin JDK 17 aqui](https://adoptium.net/temurin/releases/?version=17).
+    * Durante a instalação do JDK, certifique-se de que a variável de ambiente `JAVA_HOME` seja configurada corretamente, apontando para a pasta do JDK 17.
+3.  **Instale o Android Studio:** Necessário para o Android SDK e ferramentas como `adb`. [Download aqui](https://developer.android.com/studio).
+    * No Android Studio, instale o **Android SDK Platform** para a API mais recente (ex: API 34 ou superior) e **Android SDK Build-Tools**.
+    * **Configure a variável de ambiente `ANDROID_HOME`:** No Windows, aponte para a pasta raiz do seu SDK (ex: `C:\Users\SEU_USUARIO\AppData\Local\Android\Sdk`).
+    * Adicione `%ANDROID_HOME%\platform-tools` e `%ANDROID_HOME%\tools` ao `Path` do sistema.
+    * **Importante:** Reinicie seu computador após configurar as variáveis de ambiente para que elas sejam aplicadas.
+4.  **Instale o Git:** Necessário para clonar e versionar o código.
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+## 🔑 Integração com o Firebase (Detalhes Cruciais)
 
-### Android
+Este projeto utiliza o Firebase para autenticação e banco de dados. A conexão é configurada da seguinte forma:
 
-```sh
-# Using npm
-npm run android
+1.  **Crie um Projeto Firebase:**
+    * Acesse [Firebase Console](https://console.firebase.google.com/) e crie um novo projeto.
+    * **Habilite o Firebase Authentication:** Na seção "Build", vá em "Authentication" e ative o provedor "E-mail/senha".
+    * **Crie o Firestore Database:** Na seção "Build", vá em "Firestore Database", clique em "Criar banco de dados" e escolha **"Iniciar em modo de teste"** e selecione a localização `southamerica-east1 (São Paulo)`.
 
-# OR using Yarn
-yarn android
-```
+2.  **Registre o Aplicativo Android no Firebase:**
+    * No painel do seu projeto Firebase, clique no **ícone do Android (🤖)**.
+    * Preencha o "Nome do pacote Android" com `com.spoutyapp` (este é o ID único do aplicativo).
+    * Clique em "Registrar app".
 
-### iOS
+3.  **Baixe o `google-services.json`:**
+    * Após registrar o app, o Firebase oferecerá o download do arquivo `google-services.json`.
+    * Baixe este arquivo e coloque-o na pasta **`SpoutyApp/android/app/`** do seu projeto local. **Este arquivo não contém chaves secretas e deve ser versionado no Git.**
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+4.  **Configurações Gradle:**
+    * No arquivo `android/build.gradle` (raiz da pasta android), adicione a linha `classpath 'com.google.gms:google-services:4.4.2'` (ou a versão mais recente) dentro de `buildscript { dependencies { ... } }`.
+    * No arquivo `android/app/build.gradle`, adicione a linha `apply plugin: 'com.google.gms.google-services'` no topo do arquivo.
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+## ▶️ Como Executar o Sistema Localmente
 
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+1.  **Clone o Repositório:**
+    ```bash
+    git clone [https://github.com/VictorMeloAlves/SpoutyApp.git](https://github.com/VictorMeloAlves/SpoutyApp.git)
+    cd SpoutyApp
+    ```
+2.  **Instale as Dependências JavaScript:**
+    ```bash
+    npm install
+    ```
+3.  **Prepare o Celular Android:**
+    * Habilite as "Opções do desenvolvedor" e a "Depuração USB".
+    * Conecte o celular ao PC via cabo USB.
+    * Na tela do celular, permita a depuração USB e marque "Sempre permitir a partir deste computador".
+    * Garanta que o celular e o computador estão na **mesma rede Wi-Fi**.
+4.  **Execute o Aplicativo:**
+    ```bash
+    npx react-native run-android
+    ```
+    * Uma nova janela de terminal (Metro Bundler) será aberta. Mantenha-a ativa.
+    * O app será compilado e instalado no seu celular.
+    
