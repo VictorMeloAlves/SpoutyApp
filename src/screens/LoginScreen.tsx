@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, Text, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Alert, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
-// Definindo a tipagem para a propriedade de navegação
 interface Props {
   navigation: NavigationProp<ParamListBase>;
 }
@@ -17,12 +16,10 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       Alert.alert('Erro', 'Por favor, preencha o e-mail e a senha.');
       return;
     }
-
     auth()
       .signInWithEmailAndPassword(email, password)
       .then(userCredentials => {
         console.log('Usuário logado com sucesso!', userCredentials.user.email);
-        // A navegação para a HomeScreen será automática por causa do onAuthStateChanged no App.tsx
       })
       .catch(error => {
         let errorMessage = 'Ocorreu um erro ao tentar fazer o login.';
@@ -33,11 +30,35 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
         } else if (error.code === 'auth/invalid-email') {
           errorMessage = 'O formato do e-mail é inválido.';
         }
-        
         Alert.alert('Erro de Login', errorMessage);
         console.error(error);
       });
   };
+
+  // Função para redefinir senha
+  const handlePasswordReset = () => {
+    if (email.length === 0) {
+      Alert.alert('Recuperar Senha', 'Por favor, digite seu e-mail no campo acima para enviarmos o link de recuperação.');
+      return;
+    }
+
+    auth()
+      .sendPasswordResetEmail(email)
+      .then(() => {
+        Alert.alert('Verifique seu E-mail', 'Enviamos um link para você redefinir sua senha.');
+      })
+      .catch(error => {
+        let errorMessage = 'Ocorreu um erro ao tentar enviar o e-mail.';
+        if (error.code === 'auth/user-not-found') {
+          errorMessage = 'Nenhum usuário encontrado com este e-mail.';
+        } else if (error.code === 'auth/invalid-email') {
+          errorMessage = 'O formato do e-mail é inválido.';
+        }
+        Alert.alert('Erro', errorMessage);
+        console.error(error);
+      });
+  };
+  // FIM DA FUNÇÃO ----------------------------------------
 
   return (
     <View style={styles.container}>
@@ -57,19 +78,26 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
         style={styles.input}
         secureTextEntry
       />
+
+      {/* Botão de Esqueci Minha Senha */}
+      <TouchableOpacity onPress={handlePasswordReset} style={styles.forgotPasswordButton}>
+        <Text style={styles.linkText}>Esqueceu sua senha?</Text>
+      </TouchableOpacity>
+      {/* FIM DO BOTÃO */}
+
       <View style={styles.buttonContainer}>
         <Button title="Entrar" onPress={handleLogin} />
       </View>
       <Button 
         title="Não tem uma conta? Cadastre-se" 
         onPress={() => navigation.navigate('SignUp')} 
-        color="#6200ee" // Uma cor diferente para o botão secundário
+        color="#6200ee"
       />
     </View>
   );
 };
 
-// Estilos básicos para organizar a tela
+// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -96,7 +124,16 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginBottom: 12,
   },
+  // Estilos para o botão de esqueci a senha
+  forgotPasswordButton: {
+    alignItems: 'flex-end',
+    marginBottom: 16,
+    marginTop: -8,
+  },
+  linkText: {
+    color: '#6200ee',
+    fontSize: 14,
+  },
 });
-
 
 export default LoginScreen;

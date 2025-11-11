@@ -7,12 +7,13 @@ import auth from '@react-native-firebase/auth';
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
 
-// Cria os "controladores" de navegação
+// "controladores" de navegação
 const AuthStack = createNativeStackNavigator();
 const AppStack = createNativeStackNavigator();
 
-// Navegador para quando o usuário NÃO está logado
+// Navegador para quando o usuário nao está logado
 const AuthNavigator = () => {
   return (
     <AuthStack.Navigator>
@@ -22,12 +23,13 @@ const AuthNavigator = () => {
   );
 };
 
-// Navegador para quando o usuário ESTÁ logado
+// Navegador para quando o usuário está logado
 const AppNavigator = () => {
   return (
     <AppStack.Navigator>
       <AppStack.Screen name="Home" component={HomeScreen} />
-      {/* Outras telas do app virão aqui */}
+      <AppStack.Screen name="Settings" component={SettingsScreen} />
+      {/* Posso adicionar mais telas aqui */}
     </AppStack.Navigator>
   );
 };
@@ -46,7 +48,7 @@ const App = () => {
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // Se desinscreve ao desmontar
+    return subscriber;
   }, []);
 
   if (initializing) return null; // Pode mostrar uma tela de loading aqui
