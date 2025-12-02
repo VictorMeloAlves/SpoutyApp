@@ -29,7 +29,7 @@ const StatusBar: React.FC<{ label: string; value: number; color: string }> = ({ 
 // Estilos para a barra
 const barStyles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: 5,
   },
   label: {
     fontSize: 16,
@@ -50,6 +50,14 @@ const barStyles = StyleSheet.create({
 });
 // --- FIM DO COMPONENTE DE BARRA DE STATUS ---
 
+// Define o Clima
+type WeatherData = {
+  temp: number;
+  description: string;
+  isNight: boolean;
+  condition: string;
+};
+
 // Define um tipo para os dados de sensores
 type SensorData = {
   luminosity: number;
@@ -69,7 +77,7 @@ const statusMap = {
   SLEEPING: { message: 'Zzz... (Dormindo)', color: '#555' },
   THIRSTY: { message: 'Estou com muita sede!', color: '#cc3300' },
   OVERWATERED: { message: 'Acho que bebi água demais!', color: '#0066cc' },
-  SAD_NEEDS_SUN: { message: 'Estou triste, preciso de sol...', color: '#f5a623' },
+  SAD_NEEDS_SUN: { message: 'Preciso de sol, quem sabe amanhã...', color: '#f5a623' },
   NEEDS_SUN_NOW: { message: 'Me leve para o sol, por favor!', color: '#f5a623' },
   UNKNOWN: { message: 'Status desconhecido...', color: '#888' },
 };
@@ -92,6 +100,7 @@ const HomeScreen: React.FC<{ navigation: NavigationProp<ParamListBase> }> = ({ n
   const [sensors, setSensors] = useState<SensorData | null>(null);
   const [controls, setControls] = useState<ControlData | null>(null);
   const [calculatedStatus, setCalculatedStatus] = useState<StatusKey>("CARREGANDO");
+  const [weather, setWeather] = useState<WeatherData | null>(null);
 
 
   useEffect(() => {
@@ -113,6 +122,10 @@ const HomeScreen: React.FC<{ navigation: NavigationProp<ParamListBase> }> = ({ n
               }
 
               if (deviceData.sensors) setSensors(deviceData.sensors);
+
+              if (deviceData.weather) { //Le o Clima
+                setWeather(deviceData.weather);
+              }
               
               const statusString = deviceData.status?.calculatedStatus;
               if (statusString && isStatusKey(statusString)) {
@@ -245,7 +258,7 @@ const HomeScreen: React.FC<{ navigation: NavigationProp<ParamListBase> }> = ({ n
 
   // --- NORMALIZAÇÃO DOS DADOS PARA AS BARRAS ---  
 
-  const MAX_LUX_ESPERADO = 300; 
+  const MAX_LUX_ESPERADO = 100; 
   const MAX_UV_ESPERADO = 11; 
 
   const humidityPercent = sensors ? sensors.soilMoisture : 0;
@@ -307,6 +320,21 @@ const HomeScreen: React.FC<{ navigation: NavigationProp<ParamListBase> }> = ({ n
       </Modal>
 
       <Text style={styles.header}>Spouty</Text>
+
+      {/* --- NOVO WIDGET DE CLIMA --- */}
+      {weather && (
+        <View style={styles.weatherContainer}>
+          <Text style={styles.weatherIcon}>
+            {weather.isNight ? '🌙' : (weather.condition === 'Rain' ? '🌧️' : '☀️')}
+          </Text>
+          <View>
+            <Text style={styles.weatherTemp}>{weather.temp.toFixed(0)}°C</Text>
+            <Text style={styles.weatherDesc}>
+              {weather.description.charAt(0).toUpperCase() + weather.description.slice(1)}
+            </Text>
+          </View>
+        </View>
+      )}
       
       {/* MENSAGEM DE STATUS */}
       <View style={styles.statusBox}>
@@ -331,7 +359,7 @@ const HomeScreen: React.FC<{ navigation: NavigationProp<ParamListBase> }> = ({ n
         <StatusBar 
           label="Exposição UV" 
           value={uvPercent}
-          color="#f5a623"
+          color="#87009fff"
         />
       </View>
       
@@ -350,16 +378,7 @@ const HomeScreen: React.FC<{ navigation: NavigationProp<ParamListBase> }> = ({ n
         <Button
           title="Configurações ⚙️"
           onPress={() => navigation.navigate('Settings')}
-          color="#555"
-        />
-      </View>
-
-      {/* LOGOUT */}
-      <View style={styles.logoutButtonContainer}>
-        <Button 
-          title={`Sair (${user?.email})`} 
-          onPress={() => auth().signOut()}
-          color="#d32f2f"
+          color="#124803ff"
         />
       </View>
     </View>
@@ -368,6 +387,32 @@ const HomeScreen: React.FC<{ navigation: NavigationProp<ParamListBase> }> = ({ n
 
 //estilos
 const styles = StyleSheet.create({
+  weatherContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    backgroundColor: '#c3e59eff',
+    padding: 15,
+    borderRadius: 12,
+    width: '100%',
+    elevation: 1,
+  },
+  weatherIcon: {
+    fontSize: 32,
+    marginRight: 15,
+  },
+  weatherTemp: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#194509ff',
+  },
+  weatherDesc: {
+    fontSize: 14,
+    color: '#194509ff',
+    textTransform: 'capitalize',
+  },
+
   loader: {
     flex: 1,
     justifyContent: 'center',
@@ -376,7 +421,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f1ffe7ff',
   },
   header: {
     fontSize: 32,
@@ -386,7 +431,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   statusBox: {
-    backgroundColor: '#fff',
+    backgroundColor: '#c3e59eff',
     borderRadius: 8,
     padding: 20,
     alignItems: 'center',
@@ -407,7 +452,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   barsContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#c3e59eff',
     borderRadius: 8,
     padding: 20,
     marginBottom: 20,
@@ -427,7 +472,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 15,
-    backgroundColor: '#fff',
+    backgroundColor: '#c3e59eff',
     paddingHorizontal: 15,
     marginTop: 10,
     borderRadius: 8,
@@ -444,11 +489,7 @@ const styles = StyleSheet.create({
   settingsButtonContainer: {
     marginTop: 20,
     marginBottom: 10,
-    },
-  logoutButtonContainer: {
-    marginTop: 'auto',
-    marginBottom: 20,
-  }
+    }
 });
 
 // Estilos para o Modal

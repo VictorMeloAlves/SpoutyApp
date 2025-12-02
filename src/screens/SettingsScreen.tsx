@@ -2,12 +2,17 @@ import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, Alert, PermissionsAndroid, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import Geolocation from 'react-native-geolocation-service';
+import auth from '@react-native-firebase/auth';
+
+interface Props {
+  navigation: NavigationProp<ParamListBase>;
+}
 
 // Define o tipo dificuldade para segurança
 type Difficulty = 'FACIL' | 'MEDIO' | 'DIFICIL';
 
-const SettingsScreen = () => {
-  // Estados para controlar a tela
+const SettingsScreen: React.FC<Props> = ({ navigation }) => {
+  const user = auth().currentUser;
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('MEDIO');
   const [isSavingDifficulty, setIsSavingDifficulty] = useState(false);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
@@ -55,12 +60,15 @@ const SettingsScreen = () => {
       Geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
+
+          const safeLat = parseFloat(latitude.toFixed(2));
+          const safeLon = parseFloat(longitude.toFixed(2));
           
           // Envia para o backend
           const response = await fetch('https://spouty.onrender.com/api/setlocation', { // Use sua URL!
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ lat: latitude, lon: longitude })
+            body: JSON.stringify({ lat: safeLat, lon: safeLon })
           });
           if (!response.ok) throw new Error('Falha ao salvar localização');
 
@@ -80,6 +88,38 @@ const SettingsScreen = () => {
     }
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Excluir Conta",
+      "Tem certeza? Esta ação é permanente e seus dados serão perdidos.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { 
+          text: "Sim, Excluir", 
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const currentUser = auth().currentUser;
+              if (currentUser) {
+                await currentUser.delete();
+                // O App.tsx vai detectar a mudança no auth e voltar para a tela de login automaticamente
+                Alert.alert("Conta Excluída", "Sua conta foi removida com sucesso.");
+              }
+            } catch (error: any) {
+              console.error(error);
+              if (error.code === 'auth/requires-recent-login') {
+                Alert.alert("Erro de Segurança", "Para excluir sua conta, você precisa fazer login novamente e tentar de novo.");
+                // Opcional: Deslogar o usuário para ele logar de novo
+                auth().signOut();
+              } else {
+                Alert.alert("Erro", "Não foi possível excluir a conta no momento.");
+              }
+            }
+          }
+        }
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -125,29 +165,63 @@ const SettingsScreen = () => {
           />
         )}
       </View>
+
+      {/* --- CONEXÃO DO VASO --- */}
+      <View style={styles.settingBlock}>
+        <Text style={styles.label}>Conexão Wi-Fi do Spouty</Text>
+        <Text style={styles.description}>
+          Mudou a senha do Wi-Fi ou trocou de casa? Reconecte seu vaso aqui.
+        </Text>
+        <Button 
+          title="Reconfigurar Wi-Fi do Vaso" 
+          onPress={() => navigation.navigate('WifiSetup')} 
+          color="#f5a623"
+        />
+      </View>
+
+      {/* LOGOUT */}
+      <View style={styles.logoutButtonContainer}>
+        <Button 
+          title={`Sair`} 
+          onPress={() => auth().signOut()}
+          color="#d32f2f"
+        />
+      </View>
+
+      <View style={styles.buttonSpacer}>
+            <Button 
+            title="Excluir Conta" 
+            onPress={handleDeleteAccount}
+            color="#d32f2f"
+            />
+        </View>
     </View>
   );
 };
 
 // Estilos para a tela de Configurações
 const styles = StyleSheet.create({
+  logoutButtonContainer: {
+    marginTop: 'auto',
+    marginBottom: 20,
+  },
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f1ffe7ff',
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 30,
-    color: '#333',
+    color: '#194509ff',
   },
   settingBlock: {
-    backgroundColor: '#fff',
+    backgroundColor: '#c3e59eff',
     borderRadius: 8,
-    padding: 20,
-    marginBottom: 24,
+    padding: 10,
+    marginBottom: 10,
     elevation: 2,
   },
   label: {
@@ -165,12 +239,24 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 8,
-    backgroundColor: '#fff',
+    backgroundColor: '#194509ff',
     marginBottom: 16,
   },
   picker: {
     width: '100%',
   },
+  accountActionsContainer: {
+    marginTop: 20,
+    marginBottom: 40,
+  },
+  emailText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 15,
+  },
+  buttonSpacer: {
+    marginBottom: 15,
+  }
 });
 
 export default SettingsScreen;

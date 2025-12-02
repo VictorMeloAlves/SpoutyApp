@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, Button, Alert, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
@@ -62,7 +62,10 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bem-vindo ao Spouty!</Text>
+      <Image 
+        source={require('../assets/logo.png')} 
+        style={styles.logo}
+      />
       <TextInput
         placeholder="Email"
         value={email}
@@ -86,12 +89,14 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       {/* FIM DO BOTÃO */}
 
       <View style={styles.buttonContainer}>
-        <Button title="Entrar" onPress={handleLogin} />
+        <Button title="Entrar" onPress={handleLogin}
+        color="#499844ff"
+         />
       </View>
       <Button 
         title="Não tem uma conta? Cadastre-se" 
         onPress={() => navigation.navigate('SignUp')} 
-        color="#6200ee"
+        color="#074503ff"
       />
     </View>
   );
@@ -99,27 +104,35 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
 // Estilos
 const styles = StyleSheet.create({
+  logo: {
+    width: 350,       // Largura da logo
+    height: 350,      // Altura da logo
+    alignSelf: 'center',
+    marginBottom: -100,
+    resizeMode: 'contain'
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f1ffe7ff',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 24,
-    color: '#333',
+    color: '#d3d3d3ff',
   },
   input: {
     height: 50,
-    borderColor: '#ddd',
-    borderWidth: 1,
+    borderColor: '#124803ff',
+    borderWidth: 3,
     borderRadius: 8,
     marginBottom: 16,
     paddingHorizontal: 15,
-    backgroundColor: '#fff',
+    backgroundColor: '#406932ff',
+    color: '#ffffffff',
   },
   buttonContainer: {
     marginBottom: 12,
@@ -131,7 +144,7 @@ const styles = StyleSheet.create({
     marginTop: -8,
   },
   linkText: {
-    color: '#6200ee',
+    color: '#124700ff',
     fontSize: 14,
   },
 });

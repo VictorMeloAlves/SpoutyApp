@@ -8,6 +8,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import WifiSetupScreen from './src/screens/WifiSetupScreen';
 
 // "controladores" de navegação
 const AuthStack = createNativeStackNavigator();
@@ -16,7 +17,7 @@ const AppStack = createNativeStackNavigator();
 // Navegador para quando o usuário nao está logado
 const AuthNavigator = () => {
   return (
-    <AuthStack.Navigator>
+    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="SignUp" component={SignUpScreen} />
     </AuthStack.Navigator>
@@ -26,10 +27,10 @@ const AuthNavigator = () => {
 // Navegador para quando o usuário está logado
 const AppNavigator = () => {
   return (
-    <AppStack.Navigator>
+    <AppStack.Navigator screenOptions={{ headerShown: false }}>
       <AppStack.Screen name="Home" component={HomeScreen} />
       <AppStack.Screen name="Settings" component={SettingsScreen} />
-      {/* Posso adicionar mais telas aqui */}
+      <AppStack.Screen name="WifiSetup" component={WifiSetupScreen} />
     </AppStack.Navigator>
   );
 };
@@ -51,7 +52,7 @@ const App = () => {
     return subscriber;
   }, []);
 
-  if (initializing) return null; // Pode mostrar uma tela de loading aqui
+  if (initializing) return null;
 
   return (
     <NavigationContainer>
